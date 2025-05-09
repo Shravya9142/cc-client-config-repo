@@ -1,0 +1,21 @@
+{
+  "topics": [
+    {
+      "topic_name": "tp2-az",
+      "partitions_count": 1,
+      "config": {
+        "cleanup.policy": "delete",
+        "retention.ms": "604800000"
+      }
+    }
+  ],
+  "serviceaccounts": [
+        {
+            "name": "svc2-az",
+            "description": "test service account1",
+            "operation": [
+                "read"
+            ]
+        }
+    ]
+}
