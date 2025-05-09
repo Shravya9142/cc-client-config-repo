@@ -1,0 +1,62 @@
+# on:
+#   pull_request:
+#     paths:
+#       - '**/resources.yaml'
+
+# jobs:
+#   call-plan:
+#     uses: sasidaren-coder/github-actions-test/.github/workflows/ci-workflow.yaml@main
+#     with:
+#       tf_action: "plan"
+#       config_path: "client1/azure/dev"
+
+
+name: CI Trigger Workflow
+
+on:
+  pull_request:
+    paths:
+      - '**/resources.yaml'
+
+jobs:
+  detect-changed-paths:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.setmatrix.outputs.matrix }}
+    steps:
+      - name: Checkout config-repo
+        uses: actions/checkout@v3
+
+      - name: Set matrix from changed resources.yaml paths
+        id: setmatrix
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          echo "Finding changed resources.yaml files..."
+          
+          PATHS=$(git diff --name-only origin/${{ github.base_ref }} | grep 'resources.yaml' | xargs -n1 dirname | sort | uniq)
+          
+          echo "Detected paths:"
+          echo "$PATHS"
+
+          if [ -z "$PATHS" ]; then
+            echo "No resources.yaml changes found."
+            exit 1
+          fi
+
+          JSON_ARRAY=$(printf '%s\n' $PATHS | jq -R . | jq -cs .)
+          MATRIX_JSON="{\"config_paths\":$JSON_ARRAY}"
+
+          echo "Matrix JSON:"
+          echo "$MATRIX_JSON"
+          
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+  run-ci-per-path:
+    needs: detect-changed-paths
+    strategy:
+      matrix:
+        config_paths: ${{ fromJson(needs.detect-changed-paths.outputs.matrix).config_paths }}
+    uses: sasidaren-coder/github-actions-test/.github/workflows/ci-workflow.yaml@main
+    with:
+      tf_action: "plan"
+      config_path: ${{ matrix.config_paths }}

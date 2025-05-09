@@ -1,0 +1,39 @@
+name: CD Trigger Tagged Environment Workflow
+
+on:
+  push:
+    tags:
+      - 'test-*'
+      - 'prod-*'
+      - 'client*-*-test-*'
+      - 'client*-*-prod-*'
+
+jobs:
+  extract-config-path:
+    runs-on: ubuntu-latest
+    outputs:
+      config_path: ${{ steps.setpath.outputs.config_path }}
+    steps:
+      - name: Parse tag and extract config path
+        id: setpath
+        run: |
+          TAG_NAME="${GITHUB_REF##refs/tags/}"
+
+          # Expecting tags like: client1-azure-test-v1
+          IFS='-' read -r CLIENT CLOUD ENVIRONMENT _ <<< "$TAG_NAME"
+
+          if [[ -z "$CLIENT" || -z "$CLOUD" || -z "$ENVIRONMENT" ]]; then
+            echo "Invalid tag format. Must be: <client>-<cloud>-<env>-<version>"
+            exit 1
+          fi
+
+          CONFIG_PATH="$CLIENT/$CLOUD/$ENVIRONMENT"
+          echo "Deploying for path: $CONFIG_PATH"
+          echo "config_path=$CONFIG_PATH" >> $GITHUB_OUTPUT
+
+  deploy-tagged:
+    needs: extract-config-path
+    uses: sasidaren-coder/github-actions-test/.github/workflows/cd-workflow.yaml@main
+    with:
+      tf_action: "apply"
+      config_path: ${{ needs.extract-config-path.outputs.config_path }}
