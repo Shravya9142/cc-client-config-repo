@@ -12,5 +12,5 @@ rolebindings:
 - principal: "User:svc14"
   role_name: "DeveloperRead"
   resource_type: "Topic"
-  resource_name: "user-events"
+  resource_name: "git-atm"
     
