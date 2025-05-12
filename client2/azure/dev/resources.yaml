@@ -9,8 +9,8 @@ serviceaccounts:
 - name: svc14
   description: test service account1
 rolebindings:
-  - principal: "User:svc14"
-    role_name: "DeveloperRead"
-    resource_type: "Topic"
-    resource_name: "user-events"
+- principal: "User:svc14"
+  role_name: "DeveloperRead"
+  resource_type: "Topic"
+  resource_name: "user-events"
     
