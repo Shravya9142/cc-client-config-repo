@@ -8,3 +8,9 @@ topics:
 serviceaccounts:
 - name: svc14
   description: test service account1
+rolebindings:
+  - principal: "User:sa-n2mzzd"
+    role_name: "DeveloperRead"
+    resource_type: "Topic"
+    resource_name: "user-events"
+    
