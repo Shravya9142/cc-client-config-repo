@@ -10,6 +10,6 @@ serviceaccounts:
   description: test service account0
 rolebindings:
 - principal: "User:sa-2vqyvo"
-  role_name: "ReadOnly"
+  role_name: "EnvironmentAdmin"
   
     
