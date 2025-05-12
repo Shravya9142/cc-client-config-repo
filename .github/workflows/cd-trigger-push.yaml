@@ -36,7 +36,7 @@ jobs:
     strategy:
       matrix:
         config_paths: ${{ fromJson(needs.detect-dev-paths.outputs.matrix).config_paths }}
-    uses: sasidaren-coder/github-actions-test/.github/workflows/cd-workflow.yaml@main
+    uses: Shravya9142/github-actions-test/.github/workflows/cd-workflow.yaml@main
     with:
       tf_action: "apply"
       config_path: ${{ matrix.config_paths }}
